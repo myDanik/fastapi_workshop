@@ -3,3 +3,7 @@ uvicorn
 pydantic
 python-dotenv
 sqlalchemy
+python-jose
+passlib[brcypt]
+python-multipart
+bcrypt
