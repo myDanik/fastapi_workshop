@@ -4,7 +4,7 @@ from pydantic import BaseSettings
 class Settings(BaseSettings):
     server_host: str = '127.0.0.1'
     server_port: int = 8000
-    database_url: str = 'sqlite:///./database.sqlite3'
+    database_url: str = r'sqlite:///C:\Dev\fastapi_workshop\database.sqlite3'
 
     jwt_secret: str = 'ppNiMc7gtSYdvqdMdOHPq6u0oBjMPU2y-oVDVyu1v5Y'
     jwt_algorithm: str = 'HS256'
