@@ -5,7 +5,7 @@ from .settings import settings
 
 engine = create_engine(
     settings.database_url,
-    connect_args={'check_same_thread': False},
+    echo=True
 )
 
 
@@ -16,7 +16,7 @@ Session = sessionmaker(
 )
 
 
-def get_session() -> Session:
+def get_db_session() -> Session:
     session = Session()
     try:
         yield session

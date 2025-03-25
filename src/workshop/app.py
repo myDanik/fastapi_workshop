@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from .api import router
+from .api import api_router
 
-tags_metadata = [
+TAGS_METADATA = [
     {
         'name': 'auth',
         'description': 'Авторизация',
@@ -20,6 +20,6 @@ app = FastAPI(
     title='Workshop',
     description='Сервис учета личных расходов и доходов.',
     version='1.0.0',
-    openapi_tags=tags_metadata,
+    openapi_tags=TAGS_METADATA,
 )
 app.include_router(router)

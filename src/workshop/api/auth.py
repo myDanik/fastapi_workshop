@@ -11,15 +11,15 @@ router = APIRouter(
 
 
 @router.post('/sign-up', response_model=Token)
-def sign_up(
+def register_user(
         user_data: UserCreate,
         service: AuthService = Depends()
 ):
-    return service.register_new_user(user_data)
+    return service.register_user(user_data)
 
 
 @router.post('/sign-in', response_model=Token)
-def sign_in(
+def login_user(
         form_data: OAuth2PasswordRequestForm = Depends(),
         service: AuthService = Depends()
 ):

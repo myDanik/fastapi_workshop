@@ -6,23 +6,24 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class OperationKind(str, Enum):
+class OperationType(str, Enum):
     INCOME = 'income'
     OUTCOME = 'outcome'
 
 
 class OperationBase(BaseModel):
     date: date
-    kind: OperationKind
+    operation_type: OperationType
     amount: Decimal
     description: Optional[str]
 
 
 class Operation(OperationBase):
-    id: int
+    operation_id: int
 
     class Config:
         orm_mode = True
+        from_attributes = True
 
 
 class OperationCreate(OperationBase):

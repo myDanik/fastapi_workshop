@@ -9,36 +9,39 @@ from .operations import OperationsService
 
 
 class ReportsService:
-    def __init__(self, operations_service: OperationsService = Depends()):
+    def __init__(self, operations_service: OperationsService):
         self.operations_service = operations_service
 
-    def import_csv(self, user_id: int, file: Any):
-        reader = csv.DictReader(
-            (line.decode() for line in file),
-            fieldnames=[
-                'date',
-                'kind',
-                'amount',
-                'description',
-            ]
-        )
-        operations = []
-        next(reader)
-        for row in reader:
-            operation_data = OperationCreate.parse_obj(row)
-            if not operation_data.description:
-                operation_data.description = None
-            operations.append(operation_data)
+    def import_operations_from_csv(self, user_id: int, file: Any):
+        try:
+            reader = csv.DictReader(
+                (line.decode('utf-8') for line in file),
+                fieldnames=[
+                    'date',
+                    'operation_type',
+                    'amount',
+                    'description',
+                ]
+            )
+            operations = []
+            next(reader)
+            for row in reader:
+                operation_data = OperationCreate.parse_obj(row)
+                if not operation_data.description:
+                    operation_data.description = None
+                operations.append(operation_data)
 
-        self.operations_service.create_many(user_id, operations)
+            self.operations_service.create_many(user_id, operations)
+        except csv.Error as e:
+            raise HTTPException(status_code=400, detail=f"CSV parsing error: {e}")
 
-    def export_csv(self, user_id: int) -> Any:
+    def export_operations_to_csv(self, user_id: int) -> Any:
         output = StringIO()
         writer = csv.DictWriter(
             output,
             fieldnames=[
                 'date',
-                'kind',
+                'operation_type',
                 'amount',
                 'description',
             ],

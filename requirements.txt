@@ -7,3 +7,6 @@ python-jose
 passlib[brcypt]
 python-multipart
 bcrypt
+psycopg2-binary
+pytest
+pytest-asyncio

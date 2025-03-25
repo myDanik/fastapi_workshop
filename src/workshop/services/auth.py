@@ -8,7 +8,7 @@ from passlib.hash import bcrypt
 from jose import jwt, JWTError
 
 from .. import tables
-from ..database import get_session
+from ..database import get_db_session
 from ..models.auth import UserCreate, User, Token
 from ..settings import settings
 
@@ -30,13 +30,7 @@ class AuthService:
 
     @classmethod
     def validate_token(cls, token: str) -> User:
-        exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Could not validate credentials',
-            headers={
-                'WWW-Authenticate': 'Bearer'
-            },
-        )
+        exception = self._create_exception('Could not validate credentials')
         try:
             payload = jwt.decode(
                 token,
@@ -64,7 +58,7 @@ class AuthService:
             'iat': now,
             'nbf': now,
             'exp': now + timedelta(settings.jwt_expiration),
-            'sub': str(user_data.id),
+            'sub': str(user_data),
             'user': user_data.dict()
         }
         token = jwt.encode(
@@ -74,10 +68,10 @@ class AuthService:
         )
         return Token(access_token=token)
 
-    def __init__(self, session: Session = Depends(get_session)):
+    def __init__(self, session: Session = Depends(get_db_session)):
         self.session = session
 
-    def register_new_user(self, user_data: UserCreate) -> Token:
+    def register_user(self, user_data: UserCreate) -> Token:
         user = tables.User(
             email=user_data.email,
             username=user_data.username,
@@ -88,13 +82,7 @@ class AuthService:
         return self.create_token(user)
 
     def authenticate_user(self, username: str, password: str) -> Token:
-        exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Incorrect username or password',
-            headers={
-                'WWW-Authenticate': 'Bearer'
-            },
-        )
+        exception = self._create_exception('Incorrect username or password')
         user = (
             self.session
                 .query(tables.User)
@@ -106,3 +94,9 @@ class AuthService:
         if not self.verify_password(password, user.password_hash):
             raise exception
         return self.create_token(user)
+    def _create_exception(self, detail: str) -> HTTPException:
+        return HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=detail,
+        headers={'WWW-Authenticate': 'Bearer'},
+        )
